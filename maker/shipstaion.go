@@ -2,7 +2,6 @@ package maker
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/url"
 	"os"
 	"strconv"
@@ -19,7 +18,7 @@ type ShipControl struct {
 	*util.HTTPLogin
 }
 
-// New starts Shipstaion api
+// Ship starts Shipstaion api
 func Ship(from time.Time, to time.Time, keyword string) *ShipControl {
 	return &ShipControl{
 		from:    from,
@@ -36,12 +35,12 @@ func Ship(from time.Time, to time.Time, keyword string) *ShipControl {
 // GetOrdersShipments grabs an HTTP response of orders, filtering in those shipment.
 func (c *ShipControl) GetOrdersShipments() (*Payload, error) {
 	pg := 1
+
 	pay := &Payload{}
 	reqs, secs, err := c.getPage(pg, pay)
 	if err != nil {
 		return pay, util.Err(err)
 	}
-
 	for pay.Page < pay.Pages {
 		pg++
 		ords := pay.Orders
@@ -57,7 +56,6 @@ func (c *ShipControl) GetOrdersShipments() (*Payload, error) {
 
 		pay.Orders = append(ords, pay.Orders...)
 	}
-
 	return pay, nil
 }
 
@@ -79,15 +77,11 @@ func (c *ShipControl) getPage(page int, pay *Payload) (int, int, error) {
 		return 0, 0, util.Err(err)
 	}
 
-	fmt.Println(shipURL + `orders?` + query.Encode())
-	fmt.Println(resp.Status)
-
 	err = json.NewDecoder(resp.Body).Decode(pay)
 	if err != nil {
 		return 0, 0, util.Err(err)
 	}
 	defer resp.Body.Close()
-	// fmt.Println(*pay)
 
 	remaining := resp.Header.Get("X-Rate-Limit-Remaining")
 	reqs, err := strconv.Atoi(remaining)
