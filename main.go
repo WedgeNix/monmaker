@@ -34,16 +34,22 @@ func main() {
 	}
 	brand := new.ReplaceAllString(brandStr, "")
 	fmt.Print("Start date for sales data (YYYY-MM-DD): ")
-	date, err := reader.ReadString('\n')
+	sDate, err := reader.ReadString('\n')
 	if err != nil {
 		log.Panic(err)
 	}
-	from := dateValidate(date, reader)
+	from := dateValidate(sDate, reader)
+	fmt.Print("End date for sales data (YYYY-MM-DD): ")
+	eDate, err := reader.ReadString('\n')
+	if err != nil {
+		log.Panic(err)
+	}
+	end := dateValidate(eDate, reader)
 
 	fmt.Println("     Start ShipStation call...")
 	// Start ShipStation Call.
-	now := time.Now()
-	resp, err := maker.Ship(from, now, brand).GetOrdersShipments()
+	// now := time.Now()
+	resp, err := maker.Ship(from, end, brand).GetOrdersShipments()
 	if err != nil {
 		log.Panic(err)
 	}
